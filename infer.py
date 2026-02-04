@@ -54,6 +54,9 @@ if __name__ == "__main__":
 
     tokenizer = AutoTokenizer.from_pretrained(model_path)
 
+    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"  
+
     inputs = tokenizer(prompts, padding=True, return_tensors="pt").to(device)
 
     model = llama.ModelForCausalLM.from_pretrained(model_path).to(device)
@@ -73,7 +76,10 @@ if __name__ == "__main__":
     for _ in range(num_profiling_iterations):
         start_time = time.time()
 
-        outputs = model.generate(inputs.input_ids, max_new_tokens=max_new_tokens)
+        outputs = model.generate(
+            inputs.input_ids, 
+            max_new_tokens=max_new_tokens,
+            )
 
         if device == "cuda":
             torch.cuda.synchronize()
